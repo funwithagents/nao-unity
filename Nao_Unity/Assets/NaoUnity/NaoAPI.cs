@@ -154,6 +154,34 @@ namespace NaoUnity
         }
         #endregion
 
+        #region App
+        public static List<BehaviorInfos> AvailableApps { get; private set; } = new List<BehaviorInfos>();
+        public static void GetAppBehaviors(Action<NaoCommandResult<List<BehaviorInfos>>> onResult = null)
+        {
+            NaoSender.Instance.ApplyCommandOnNao(
+                new NaoMessageGetAppBehaviors(),
+                (r) =>
+                {
+                    NaoCommandResult<List<BehaviorInfos>> result = new NaoCommandResult<List<BehaviorInfos>>(r);
+                    if (result.m_Type == NaoCommandResult.ResultType.Success && result.m_Data != null)
+                        AvailableApps = result.m_Data;
+                    onResult?.Invoke(result);
+                });
+        }
+        public static void RunApp(string appId, Action<NaoCommandResult> onResult = null)
+        {
+            NaoSender.Instance.ApplyCommandOnNao(
+                new NaoMessageRunApp(appId),
+                onResult);
+        }
+        public static void StopApp(string appId, Action<NaoCommandResult> onResult = null)
+        {
+            NaoSender.Instance.ApplyCommandOnNao(
+                new NaoMessageStopApp(appId),
+                onResult);
+        }
+        #endregion
+
         #region BodyAction
         public static List<BehaviorInfos> AvailableBodyActions { get; private set; } = new List<BehaviorInfos>();
         public static void GetBodyActionBehaviors(Action<NaoCommandResult<List<BehaviorInfos>>> onResult = null)
