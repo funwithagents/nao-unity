@@ -72,6 +72,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7615724996986664841}
+  - component: {fileID: 7207096885860992844}
   m_Layer: 0
   m_Name: NaoUnity
   m_TagString: Untagged
@@ -96,6 +97,32 @@ Transform:
   - {fileID: 4892154085446166369}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &7207096885860992844
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3254460534135205770}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c7bfe63f83410405cb802df5240c86b3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_TextToSay: Hello, I am Nao
+  m_TTSLanguage: 1
+  m_EyesColor: 0
+  m_BasicAwarenessEnabled: 1
+  m_EngagementMode: 1
+  m_TrackingMode: 0
+  m_BreathingEnabled: 1
+  m_BreathingChain: 0
+  m_DanceId: 
+  m_AppId: 
+  m_BodyActionId: 
+  m_ReactionType: 
+  m_BehaviorName: 
+  m_GenericNaoText: 
 --- !u!1 &3797493164304448909
 GameObject:
   m_ObjectHideFlags: 0
