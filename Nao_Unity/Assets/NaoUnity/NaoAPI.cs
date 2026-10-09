@@ -233,7 +233,7 @@ namespace NaoUnity
                     });
             }
             else
-                onResult(new NaoCommandResult(NaoCommandResult.ResultType.Error, "Empty or null behavior name"));
+                onResult?.Invoke(new NaoCommandResult(NaoCommandResult.ResultType.Error, "Empty or null behavior name"));
         }
         public static void StopBehavior(string behaviorName, Action<NaoCommandResult> onResult = null)
         {
@@ -251,7 +251,7 @@ namespace NaoUnity
             if (!string.IsNullOrEmpty(NaoWorld.Instance.CurrentBehavior))
                 StopBehavior(NaoWorld.Instance.CurrentBehavior, onResult);
             else
-                onResult(new NaoCommandResult(NaoCommandResult.ResultType.Success, ""));
+                onResult?.Invoke(new NaoCommandResult(NaoCommandResult.ResultType.Success, ""));
         }
     }
 }
