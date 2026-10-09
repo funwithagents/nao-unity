@@ -27,8 +27,10 @@ This project consists of several key components:
   - `NaoReceiver`: singleton that subscribes to incoming messages and updates NaoWorld with received data
   - `NaoSender`: singleton with API to send messages to the websocket server
 
-- **NaoAPI**: A singleton class that provides access to all NAO robot APIs:
+- **NaoAPI**: A static class that provides access to all NAO robot APIs:
   - Sends commands through NaoConnection and waits for the result (back and forth websocket communication with the server, actually calling the API)
+
+- **NaoAPIPanel**: A component with a custom Inspector to call NaoAPI functions by hand, without writing any code (see [Testing the API from the Inspector](#testing-the-api-from-the-inspector))
 
 ## Prerequisites
 
@@ -62,9 +64,28 @@ This project consists of several key components:
 
 ## Usage
 
-To interact with the NAO robot in your scripts, use the NaoAPI singleton:
+To interact with the NAO robot in your scripts, use the static NaoAPI class:
 
 ```csharp
-// Example: Calling a NAO API method
-NaoAPI.Instance.ApiName();
+// Example: make Nao talk, then react to the result
+NaoAPI.Say("Hello, I am Nao", (result) =>
+{
+    if (result.m_Type == NaoCommandResult.ResultType.Success)
+        Debug.Log("Nao finished talking");
+});
 ```
+
+### Testing the API from the Inspector
+
+The `NaoAPIPanel` component lets you call every NaoAPI function from the Inspector, which is handy to try commands on the robot without writing code. It is already on the `NaoUnity` prefab; you can also add it to any GameObject (**Add Component > Nao API Panel**).
+
+1. Play the scene and wait for the connection to Nao
+2. Select the GameObject holding `NaoAPIPanel` (e.g. `NaoUnity`)
+3. In the Inspector:
+   - **Status** shows the live robot state (connection, posture, talking, current behavior, pending commands)
+   - Each section (Speech, Posture, Eyes, Basic Awareness, Breathing, Dances, Apps, Body Actions, Expressive Reactions, Behaviors) has the parameters of its calls and one button per call
+   - For Dances, Apps, Body Actions and Expressive Reactions, click **Fetch List** to fill the dropdown with what is available on the robot (an id can also be typed manually before fetching)
+
+> **Note**: Buttons are disabled outside Play mode or when not connected to Nao. Sent commands and the server's `CommandEnded` responses (with their result) are logged in the Console.
+
+The panel's public methods (`Say()`, `WakeUp()`, `Dance()`, ...) can also be wired to UI buttons or other UnityEvents.
