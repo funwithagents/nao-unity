@@ -13,6 +13,7 @@ namespace NaoUnity
 
         private bool m_JointUpdated = false;
         private Dictionary<string, float> m_NewJointAngles = null;
+        private readonly HashSet<string> m_MissingJoints = new HashSet<string>();
 
         // Start is called before the first frame update
         void Start()
@@ -47,15 +48,20 @@ namespace NaoUnity
 
         private void ApplyJointAngles(Dictionary<string, float> jointAngles)
         {
+            if (jointAngles == null)
+                return;
+
             foreach (JointArticulationAssociation asso in m_JointArticulationAssociations.m_Associations)
             {
-                if (!jointAngles.ContainsKey(asso.m_JointName))
+                if (!jointAngles.TryGetValue(asso.m_JointName, out float angle))
                 {
-                    Debug.LogError("RobotRepresentationManager: did not receive update for joint " + asso.m_JointName);
+                    // Partial updates are fine (the joint keeps its pose): warn once per joint
+                    if (m_MissingJoints.Add(asso.m_JointName))
+                        Debug.LogWarning("RobotRepresentationManager: did not receive update for joint " + asso.m_JointName);
                     continue;
                 }
 
-                ApplyJointAngle(asso, jointAngles[asso.m_JointName] * Mathf.Rad2Deg);
+                ApplyJointAngle(asso, angle * Mathf.Rad2Deg);
             }
         }
 
