@@ -20,6 +20,9 @@ namespace NaoUnity
         public string WEBSOCKET_SERVER_IP = "127.0.0.1";
         public int PORT_WEBSOCKET = 8002;
 
+        // The naoqi-bridge WebSocket protocol version this client is written for.
+        private const int PROTOCOL_VERSION = 2;
+
         private DateTime m_LastConnectTryTime = DateTime.MinValue;
         [SerializeField, ReadOnly]
         private bool m_IsConnected = false;
@@ -89,8 +92,8 @@ namespace NaoUnity
             if (messageId != "Joints" && messageId != "Audio")
                 Debug.Log($"NaoConnection: received message => \n{message}");
 
-            if (messageId == NaoStateMessage.ID)
-                OnNaoStateMessageReceived(messageDataAsString);
+            if (messageId == NaoqiStateMessage.ID)
+                OnNaoqiStateMessageReceived(messageDataAsString);
             else if (messageId == LogMessage.ID)
                 OnLogMessageReceived(messageDataAsString);
             else
@@ -105,10 +108,12 @@ namespace NaoUnity
             }
         }
 
-        private class NaoStateMessage : NaoConnectionMessage
+        private class NaoqiStateMessage : NaoConnectionMessage
         {
-            public const string ID = "NaoState";
+            public const string ID = "NaoqiState";
 
+            [JsonProperty("protocolVersion")]
+            public int m_ProtocolVersion;
             [JsonProperty("connected")]
             public bool m_Connected;
             [JsonProperty("fakeRobot")]
@@ -117,22 +122,25 @@ namespace NaoUnity
             public override string GetMessageId() { return ID; }
         }
 
-        private void OnNaoStateMessageReceived(string message)
+        private void OnNaoqiStateMessageReceived(string message)
         {
-            NaoStateMessage naoStateMessage = null;
+            NaoqiStateMessage naoqiStateMessage = null;
             try
             {
-                naoStateMessage = JsonConvert.DeserializeObject<NaoStateMessage>(message);
+                naoqiStateMessage = JsonConvert.DeserializeObject<NaoqiStateMessage>(message);
             }
             catch (Exception e)
             {
-                Debug.LogError($"NaoConnection::OnConnectionMessageReceived: failed to parse message received from websocket with error {e}");
+                Debug.LogError($"NaoConnection::OnNaoqiStateMessageReceived: failed to parse message received from websocket with error {e}");
                 return;
             }
 
-            Debug.Log($"NaoConnection: connection message received: connected = '{naoStateMessage.m_Connected}' fakeRobot = '{naoStateMessage.m_FakeRobot}' ");
-            NaoWorld.Instance.FakeRobot = naoStateMessage.m_FakeRobot;
-            NaoWorld.Instance.ConnectedToNao = naoStateMessage.m_Connected;
+            if (naoqiStateMessage.m_ProtocolVersion != PROTOCOL_VERSION)
+                Debug.LogError($"NaoConnection: naoqi-bridge speaks protocol version {naoqiStateMessage.m_ProtocolVersion}, this client expects {PROTOCOL_VERSION}");
+
+            Debug.Log($"NaoConnection: connection message received: connected = '{naoqiStateMessage.m_Connected}' fakeRobot = '{naoqiStateMessage.m_FakeRobot}' ");
+            NaoWorld.Instance.FakeRobot = naoqiStateMessage.m_FakeRobot;
+            NaoWorld.Instance.ConnectedToNao = naoqiStateMessage.m_Connected;
         }
 
         private class LogMessage : NaoConnectionMessage
